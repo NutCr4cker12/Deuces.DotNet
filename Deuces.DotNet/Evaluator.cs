@@ -94,7 +94,7 @@ public class Evaluator
     {
         int prime;
         // if flush
-        if ((cards[0] & cards[1] & cards[2] & cards[3] & cards[4] & 0xF000) == 0)
+        if ((cards[0] & cards[1] & cards[2] & cards[3] & cards[4] & 0xF000) != 0)
         {
             var handOR = (cards[0] | cards[1] | cards[2] | cards[3] | cards[4]) >> 16;
             prime = Card.PrimeProductFromRankBits(handOR);

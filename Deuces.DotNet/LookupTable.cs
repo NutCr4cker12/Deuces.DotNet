@@ -20,7 +20,7 @@ namespace Deuces;
 /// * Royal flush (best hand possible)          =&gt; 1
 /// * 7-5-4-3-2 unsuited (worst hand possible)  =&gt; 7462
 /// </summary>
-internal class LookupTable
+public class LookupTable
 {
     internal const int MAX_STRAIGHT_FLUSH = 10;
     internal const int MAX_FOUR_OF_A_KIND = 166;
@@ -98,7 +98,7 @@ internal class LookupTable
     /// <returns></returns>
     private IReadOnlyDictionary<int, int> Flushes(IReadOnlyList<int> flushesArr)
     {
-        var flushes = new Dictionary<int, int>(); // TODO Add value for constructor!!!
+        var flushes = new Dictionary<int, int>(1287);
 
         // now add to the lookup map:
         // start with straight flushes and the rank of 1
@@ -120,8 +120,6 @@ internal class LookupTable
             flushes[primeProduct] = rank++;
         }
 
-        Console.WriteLine("TODO Add to flushes contructor:");
-        Console.WriteLine($"Count of flushes is: {flushes.Count}");
         return new ReadOnlyDictionary<int, int>(flushes); // TODO Does this have an overhead ??
     }
 
@@ -240,9 +238,6 @@ internal class LookupTable
             }
         }
 
-
-        Console.WriteLine("TODO Add to multiples lookup contructor:");
-        Console.WriteLine($"Count of flushes is: {lookUp.Count}");
         return new ReadOnlyDictionary<int, int>(lookUp); // TODO Does this have an overhead ??
     }
 
@@ -255,7 +250,7 @@ internal class LookupTable
     /// <returns></returns>
     private Dictionary<int, int> StraightAndHighCards(IReadOnlyList<int> highCards)
     {
-        var res = new Dictionary<int, int>(); // TODO Add initial count to constructor!!!
+        var res = new Dictionary<int, int>(4898);
         var rank = MAX_FLUSH + 1;
 
         // "Straights"
@@ -279,7 +274,7 @@ internal class LookupTable
     {
         // now we'll dynamically generate all the other
         // flushes (including straight flushes)
-        var flushesArr = new List<int>(1277);
+        var flushesArr = new List<int>(1287);
         using var gen = GetLexoGraphicallyNextBitSequence(0b11111);
 
         // 1277 = number of high cards
@@ -289,6 +284,7 @@ internal class LookupTable
         for (var i = 0; i < 1277 + _straightFlushes.Length - 1; i++)
         {
             // pull the next flush pattern from our generator
+            gen.MoveNext();
             var f = gen.Current;
 
             //if this flush matches perfectly any
@@ -298,7 +294,7 @@ internal class LookupTable
             {
                 //if f XOR sf == 0, then bit pattern 
                 // is same, and we should not add
-                if ((f ^ sf) != 0)
+                if ((f ^ sf) == 0)
                 {
                     notSF = false;
                     break;
