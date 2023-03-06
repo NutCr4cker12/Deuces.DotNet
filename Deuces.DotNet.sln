@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deuces", "Deuces.DotNet\Deu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BenchMarks", "BenchMarks\BenchMarks.csproj", "{20351FEA-A7F1-47E8-8379-417A132DBE13}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{3A0BDA11-0238-4480-B909-579A3F5D699B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{20351FEA-A7F1-47E8-8379-417A132DBE13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20351FEA-A7F1-47E8-8379-417A132DBE13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20351FEA-A7F1-47E8-8379-417A132DBE13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A0BDA11-0238-4480-B909-579A3F5D699B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A0BDA11-0238-4480-B909-579A3F5D699B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A0BDA11-0238-4480-B909-579A3F5D699B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A0BDA11-0238-4480-B909-579A3F5D699B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
