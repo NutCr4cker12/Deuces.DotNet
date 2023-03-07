@@ -20,7 +20,7 @@ namespace Deuces;
 /// * Royal flush (best hand possible)          =&gt; 1
 /// * 7-5-4-3-2 unsuited (worst hand possible)  =&gt; 7462
 /// </summary>
-public class LookupTable
+internal class LookupTable
 {
     internal const int MAX_STRAIGHT_FLUSH = 10;
     internal const int MAX_FOUR_OF_A_KIND = 166;
