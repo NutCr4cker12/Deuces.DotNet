@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace Deuces;
+
 public static class Card
 {
     // Static class that handles cards. We represent cards as 32-bit integers, so 
@@ -22,8 +24,10 @@ public static class Card
     // - Detect straights
     // and is also quite performant.
     //private static readonly int[] _ranks = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-    public static readonly int[] PRIMES = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41 };
     public const int INT_RANK_COUNT = 13;
+    public static readonly IReadOnlyList<int> PRIMES = new ReadOnlyCollection<int>(new[] { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41 });
+    public static readonly IReadOnlyList<char> STR_RANKS = new ReadOnlyCollection<char>("23456789TJQKA".ToCharArray());
+    public static readonly IReadOnlyList<char> STR_SUITES = new ReadOnlyCollection<char>("shdc".ToCharArray());
 
     /// <summary>
     /// Converts Card string to binary integer representation of card, inspired by:
