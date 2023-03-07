@@ -4,7 +4,7 @@ using Deuces;
 namespace BenchMarks;
 
 [Config(typeof(AntiVirusFriendlyConfig))]
-public class LookupTest
+public class LookupPerformance
 {
     [Benchmark]
     public void CreateLookupTable()
