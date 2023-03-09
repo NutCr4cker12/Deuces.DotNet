@@ -6,59 +6,95 @@ namespace BenchMarks;
 [Config(typeof(AntiVirusFriendlyConfig))]
 public class EvaluatorPerformance
 {
-    private const int N = 10_000;
-    private List<(int[] cards, int[] board)>? _eval5;
-    private List<(int[] cards, int[] board)>? _eval6;
-    private List<(int[] cards, int[] board)>? _eval7;
     private Evaluator _evaluator;
+    private int[] _board5Flush;
+    private int[] _cards5Flush;
+    private int[] _board5NonFlush;
+    private int[] _cards5NonFlush;
+
+    private int[] _board6Flush;
+    private int[] _cards6Flush;
+    private int[] _board6NonFlush;
+    private int[] _cards6NonFlush;
+
+    private int[] _board7Flush;
+    private int[] _cards7Flush;
+    private int[] _board7NonFlush;
+    private int[] _cards7NonFlush;
 
     [GlobalSetup]
     public void Setup()
     {
         _evaluator = new Evaluator();
-        _eval5 = new List<(int[], int[])>(N);
-        _eval6 = new List<(int[], int[])>(N);
-        _eval7 = new List<(int[], int[])>(N);
+        (_cards5Flush, _board5Flush, _cards5NonFlush, _board5NonFlush) = GetRandomCards(3);
+        (_cards6Flush, _board6Flush, _cards6NonFlush, _board6NonFlush) = GetRandomCards(4);
+        (_cards7Flush, _board7Flush, _cards7NonFlush, _board7NonFlush) = GetRandomCards(5);
+    }
 
-        // Generate 10_000 random 5, 6 and 7 card list
-        for (var i = 0; i < N; i++)
+    [Benchmark]
+    public int EvaluateFiveFlush()
+    {
+        return _evaluator!.Evaluate(_cards5Flush, _board5Flush);
+    }
+
+    [Benchmark]
+    public int EvaluateFiveNonFlush()
+    {
+        return _evaluator!.Evaluate(_cards5NonFlush, _board5NonFlush);
+    }
+
+    [Benchmark]
+    public int EvaluateSixFlush()
+    {
+        return _evaluator!.Evaluate(_cards6Flush, _board6Flush);
+    }
+
+    [Benchmark]
+    public int EvaluateSixNonFlush()
+    {
+        return _evaluator!.Evaluate(_cards6NonFlush, _board6NonFlush);
+    }
+
+    [Benchmark]
+    public int EvaluateSevenFlush()
+    {
+        return _evaluator!.Evaluate(_cards7Flush, _board7Flush);
+    }
+
+    [Benchmark]
+    public int EvaluateSevenNonFlush()
+    {
+        return _evaluator!.Evaluate(_cards7NonFlush, _board7NonFlush);
+    }
+
+    private (int[] flushCards, int[] flushBoard, int[] nonFlushCards, int[] nonFlushBoard) GetRandomCards(int boardCount)
+    {
+        int[] flushCards = null!;
+        int[] flushBoard = null!;
+        int[] nonFlushCards = null!;
+        int[] nonFlushBoard = null!;
+
+        while (flushCards == null || nonFlushCards == null)
         {
             var deck = new Deck();
             var cards = deck.Draw(2);
-            _eval5.Add((cards, deck.Draw(3)));
-            _eval6.Add((cards, deck.Draw(4)));
-            _eval7.Add((cards, deck.Draw(5)));
-        }
-    }
+            var board = deck.Draw(boardCount);
 
-    [Benchmark]
-    public void EvaluateFive()
-    {
-        for (var i = 0; i < N; i++)
-        {
-            var (cards, board) = _eval5![i];
-            var _ = _evaluator.Evaluate(cards, board);
+            var handRank = _evaluator.Evaluate(cards, board);
+            var rankClass = _evaluator.GetRankClass(handRank);
+            var classString = _evaluator.ClassToString(rankClass);
+            if (classString is "Flush" or "Straight Flush")
+            {
+                flushCards = cards;
+                flushBoard = board;
+            }
+            else
+            {
+                nonFlushCards = cards;
+                nonFlushBoard = board;
+            }
         }
-    }
 
-    [Benchmark]
-    public void EvaluateSix()
-    {
-        for (var i = 0; i < N; i++)
-        {
-            var (cards, board) = _eval6![i];
-            var rank = _evaluator.Evaluate(cards, board);
-        }
+        return (flushCards, flushBoard!, nonFlushCards, nonFlushBoard!);
     }
-
-    [Benchmark]
-    public void EvaluateSeven()
-    {
-        for (var i = 0; i < N; i++)
-        {
-            var (cards, board) = _eval7![i];
-            var rank = _evaluator.Evaluate(cards, board);
-        }
-    }
-
 }
