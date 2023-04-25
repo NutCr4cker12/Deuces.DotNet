@@ -1,0 +1,11 @@
+name: Builds and tests the .NET project
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-and-test.yml
