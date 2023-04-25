@@ -2,6 +2,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8f9569c3_002D9aa9_002D4fea_002D85d6_002Dafc2b9228593/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="EvaluateSevenTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;MSTest::3A0BDA11-0238-4480-B909-579A3F5D699B::net7.0::Tests.EvaluatorTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;MSTest::3A0BDA11-0238-4480-B909-579A3F5D699B::net7.0::Tests.CardTests.IntToPrettyStrTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=bbbbbbbb/@EntryIndexedValue">True</s:Boolean>

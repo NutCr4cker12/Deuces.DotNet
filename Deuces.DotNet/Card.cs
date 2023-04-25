@@ -61,6 +61,28 @@ public static class Card
         return bitRank | suiteBit | rankBit | rankPrime;
     }
 
+    /// <summary>
+    /// Returns the card in pretty format
+    /// </summary>
+    /// <param name="cardInt"></param>
+    /// <returns></returns>
+    public static string IntToPrettyStr(int cardInt)
+    {
+        // Suite and rank
+        var suiteInt = GetSuiteInt(cardInt);
+        var rankInt = GetRankInt(cardInt);
+
+        var s = ToPrettySuite(suiteInt);
+        var r = STR_RANKS[rankInt];
+
+        return $"[ {r} {s} ]";
+    }
+
+    public static string IntsToPrettyStr(int[] cardInts)
+    {
+        return string.Join(", ", cardInts.Select(IntToPrettyStr));
+    }
+
     private static int CharRankToIntRank(char rank) => rank switch
     {
         '2' => 0,
@@ -87,6 +109,19 @@ public static class Card
         'c' => 8,
         _ => throw new ArgumentOutOfRangeException(nameof(suite), suite, null)
     };
+
+    private static char ToPrettySuite(int suite) => suite switch
+    {
+        1 => '\u2660', // spades
+        2 => '\u2665', // hearts
+        4 => '\u2666', // diamonds
+        8 => '\u2663', // clubs
+        _ => throw new ArgumentOutOfRangeException(nameof(suite), suite, "Out of range")
+    };
+
+    private static int GetRankInt(int cardInt) => (cardInt >> 8) & 0xF;
+
+    private static int GetSuiteInt(int cardInt) => (cardInt >> 12) & 0xF;
 
     /// <summary>
     /// Returns the prime product using the bitrank (b)

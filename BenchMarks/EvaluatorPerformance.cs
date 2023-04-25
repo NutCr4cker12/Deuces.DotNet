@@ -6,21 +6,21 @@ namespace BenchMarks;
 [Config(typeof(AntiVirusFriendlyConfig))]
 public class EvaluatorPerformance
 {
-    private Evaluator _evaluator;
-    private int[] _board5Flush;
-    private int[] _cards5Flush;
-    private int[] _board5NonFlush;
-    private int[] _cards5NonFlush;
+    private Evaluator? _evaluator;
+    private int[]? _board5Flush;
+    private int[]? _cards5Flush;
+    private int[]? _board5NonFlush;
+    private int[]? _cards5NonFlush;
 
-    private int[] _board6Flush;
-    private int[] _cards6Flush;
-    private int[] _board6NonFlush;
-    private int[] _cards6NonFlush;
+    private int[]? _board6Flush;
+    private int[]? _cards6Flush;
+    private int[]? _board6NonFlush;
+    private int[]? _cards6NonFlush;
 
-    private int[] _board7Flush;
-    private int[] _cards7Flush;
-    private int[] _board7NonFlush;
-    private int[] _cards7NonFlush;
+    private int[]? _board7Flush;
+    private int[]? _cards7Flush;
+    private int[]? _board7NonFlush;
+    private int[]? _cards7NonFlush;
 
     [GlobalSetup]
     public void Setup()
@@ -34,37 +34,37 @@ public class EvaluatorPerformance
     [Benchmark]
     public int EvaluateFiveFlush()
     {
-        return _evaluator!.Evaluate(_cards5Flush, _board5Flush);
+        return _evaluator!.Evaluate(_cards5Flush!, _board5Flush!);
     }
 
     [Benchmark]
     public int EvaluateFiveNonFlush()
     {
-        return _evaluator!.Evaluate(_cards5NonFlush, _board5NonFlush);
+        return _evaluator!.Evaluate(_cards5NonFlush!, _board5NonFlush!);
     }
 
     [Benchmark]
     public int EvaluateSixFlush()
     {
-        return _evaluator!.Evaluate(_cards6Flush, _board6Flush);
+        return _evaluator!.Evaluate(_cards6Flush!, _board6Flush!);
     }
 
     [Benchmark]
     public int EvaluateSixNonFlush()
     {
-        return _evaluator!.Evaluate(_cards6NonFlush, _board6NonFlush);
+        return _evaluator!.Evaluate(_cards6NonFlush!, _board6NonFlush!);
     }
 
     [Benchmark]
     public int EvaluateSevenFlush()
     {
-        return _evaluator!.Evaluate(_cards7Flush, _board7Flush);
+        return _evaluator!.Evaluate(_cards7Flush!, _board7Flush!);
     }
 
     [Benchmark]
     public int EvaluateSevenNonFlush()
     {
-        return _evaluator!.Evaluate(_cards7NonFlush, _board7NonFlush);
+        return _evaluator!.Evaluate(_cards7NonFlush!, _board7NonFlush!);
     }
 
     private (int[] flushCards, int[] flushBoard, int[] nonFlushCards, int[] nonFlushBoard) GetRandomCards(int boardCount)
@@ -80,7 +80,7 @@ public class EvaluatorPerformance
             var cards = deck.Draw(2);
             var board = deck.Draw(boardCount);
 
-            var handRank = _evaluator.Evaluate(cards, board);
+            var handRank = _evaluator!.Evaluate(cards, board);
             var rankClass = _evaluator.GetRankClass(handRank);
             var classString = _evaluator.ClassToString(rankClass);
             if (classString is "Flush" or "Straight Flush")
