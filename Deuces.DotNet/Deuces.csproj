@@ -7,6 +7,26 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>Deuces.DotNet</PackageId>
     <Title>A C# poker hand evaluation library</Title>
+    <Authors>NutCr4cker12</Authors>
+    <Description>C# port of the python poker hand evaluation libarary deuces</Description>
+    <Copyright></Copyright>
+    <PackageProjectUrl>https://github.com/NutCr4cker12/Deuces.DotNet</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/NutCr4cker12/Deuces.DotNet</RepositoryUrl>
+    <PackageTags>Poker;Deuces</PackageTags>
+	  <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

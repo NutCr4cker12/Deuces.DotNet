@@ -5,8 +5,8 @@ A C# port of [deuces](https://github.com/worldveil/deuces) poker evaluation libr
 
 ---
 ## Installation
-This package is distributed via [Nuget](https://www.nuget.org/) and can be downloaded via Nuget Packet Manager or running
-`dotnet add Deuces.DotNet`
+This package is distributed via [Nuget](https://www.nuget.org/packages/Deuces.DotNet) and can be downloaded via Nuget Packet Manager or running
+`dotnet add package Deuces.DotNet`
 
 ---
 ## Usage
@@ -79,18 +79,16 @@ LaunchCount=2  WarmupCount=10
 |      EvaluateSixFlush |   265.68 ns | 3.530 ns |  4.832 ns |
 |   EvaluateSixNonFlush |   262.61 ns | 5.639 ns |  8.441 ns |
 |    EvaluateSevenFlush | 1,106.48 ns | 9.437 ns | 14.125 ns |
-| EvaluateSevenNonFlush | 1,077.44 ns | 7.904 ns | 11.080 ns |
+| EvaluateSevenNonFlush | 1,077.44 ns | 7.904 ns | 11.080 ns |  
 
-<br />
-
+\
 To compare against [python implementation](https://github.com/ihendley/treys), here's the performance with Deuces:  
 
-<img src="./Images/deucesPerf.png" alt="Deuces performance" style="height:200px; width:500px" />
+![Trey performace](https://github.com/NutCr4cker12/Deuces.DotNet/blob/main/Images/deucesPerf.png "Performance")
+  
 
-<br />
-
+\
 As a conclusion:
-
 |                Method |        Avg  |    Evaluations per second |
 |---------------------- |------------:|--------------------------:|
 | Deuces 5              |    1 000 ns |                   909 137 |
