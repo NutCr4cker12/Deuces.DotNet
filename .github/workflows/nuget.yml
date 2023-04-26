@@ -2,13 +2,14 @@ name: Publish package to NuGet gallery
 
 on:
   release:
-    types: [created]
+    types: [created, edited]
 
 jobs:
   test:
     uses: ./.github/workflows/build-and-test.yml
 
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -23,8 +24,8 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release ./Deuces.DotNet/Deuces.csproj
       - name: Create the package
-        run: dotnet pack --configuration Release --output ./ ./Deuces.DotNet/Deuces.csproj
+        run: dotnet pack --configuration Release ./Deuces.DotNet/Deuces.csproj
       - name: Publish the package to nuget.org
-        run: dotnet nuget push ./*.nupkg --api-key $NUGET_AUTH_TOKEN --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./Deuces.DotNet/bin/Release/*.nupkg --api-key $NUGET_AUTH_TOKEN --source https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
