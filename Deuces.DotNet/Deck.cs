@@ -10,7 +10,7 @@ namespace Deuces;
 public class Deck
 {
     private static readonly IReadOnlyList<int> _fullDeck;
-    private static readonly Random _rng = new Random();
+    private static readonly Random _rng = new();
     private readonly List<int> _cards;
     static Deck()
     {

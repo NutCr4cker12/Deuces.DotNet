@@ -1,3 +1,8 @@
+
+![License](https://img.shields.io/github/license/NutCr4cker12/Deuces.DotNet)
+![Build](https://img.shields.io/github/actions/workflow/status/NutCr4cker12/Deuces.DotNet/ci.yml)
+![Nuget](https://img.shields.io/nuget/v/Deuces.DotNet)
+
 # Deuces.DotNet
 A C# port of [deuces](https://github.com/worldveil/deuces) poker evaluation library
 
@@ -56,6 +61,28 @@ Console.WriteLine(rankClass);
 Console.WriteLine(classString);
 // High Card
 ```
+
+By default, the pretty string methods returns a colored string. If the colors aren't showing up correctly in your console, you can disable card coloring by setting `Card.UseColoredCards = false;`
+
+```C#
+int[] cards = {
+    Card.New("As"),
+    Card.New("Kh"),
+    Card.New("Qd"),
+    Card.New("Jc"),
+};
+
+Console.WriteLine(Card.IntsToPrettyStr(cards));
+
+Card.UseColoredCards = false;
+Console.WriteLine(Card.IntsToPrettyStr(cards));
+
+```
+
+![Colored Cards](https://github.com/NutCr4cker12/Deuces.DotNet/blob/main/Images/ColoredCards.png)  
+  
+
+
 ---
 ## Performance
 Performance of Deuces.DotNet is measured with [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet).
@@ -84,8 +111,7 @@ LaunchCount=2  WarmupCount=10
 \
 To compare against [python implementation](https://github.com/ihendley/treys), here's the performance with Deuces:  
 
-![Trey performace](https://github.com/NutCr4cker12/Deuces.DotNet/blob/main/Images/deucesPerf.png "Performance")
-  
+![Trey performace](https://github.com/NutCr4cker12/Deuces.DotNet/blob/main/Images/deucesPerf.png "Performance")  
 
 \
 As a conclusion:

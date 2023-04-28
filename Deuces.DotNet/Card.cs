@@ -28,6 +28,7 @@ public static class Card
     public static readonly IReadOnlyList<int> PRIMES = new ReadOnlyCollection<int>(new[] { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41 });
     public static readonly IReadOnlyList<char> STR_RANKS = new ReadOnlyCollection<char>("23456789TJQKA".ToCharArray());
     public static readonly IReadOnlyList<char> STR_SUITES = new ReadOnlyCollection<char>("shdc".ToCharArray());
+    public static bool UseColoredCards = true;
 
     /// <summary>
     /// Converts Card string to binary integer representation of card, inspired by:
@@ -72,7 +73,7 @@ public static class Card
         var suiteInt = GetSuiteInt(cardInt);
         var rankInt = GetRankInt(cardInt);
 
-        var s = ToPrettySuite(suiteInt);
+        var s = UseColoredCards ? ToColoredPrettySuite(suiteInt) : ToPrettySuite(suiteInt);
         var r = STR_RANKS[rankInt];
 
         return $"[ {r} {s} ]";
@@ -110,12 +111,21 @@ public static class Card
         _ => throw new ArgumentOutOfRangeException(nameof(suite), suite, null)
     };
 
-    private static char ToPrettySuite(int suite) => suite switch
+    private static string ToPrettySuite(int suite) => suite switch
     {
-        1 => '\u2660', // spades
-        2 => '\u2665', // hearts
-        4 => '\u2666', // diamonds
-        8 => '\u2663', // clubs
+        1 => "\u2660", // spades
+        2 => "\u2665", // hearts
+        4 => "\u2666", // diamonds
+        8 => "\u2663", // clubs
+        _ => throw new ArgumentOutOfRangeException(nameof(suite), suite, "Out of range")
+    };
+
+    private static string ToColoredPrettySuite(int suite) => suite switch
+    {
+        1 => "\x1b[30;1m\u2660\x1b[0m", // spades
+        2 => "\x1b[31;1m\u2665\x1b[0m", // hearts
+        4 => "\x1b[34;1m\u2666\x1b[0m", // diamonds
+        8 => "\x1b[32;1m\u2663\x1b[0m", // clubs
         _ => throw new ArgumentOutOfRangeException(nameof(suite), suite, "Out of range")
     };
 
