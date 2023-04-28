@@ -12,6 +12,7 @@ public class CardTests
     [DataRow("Jc", "[ J ♣ ]")]
     public void IntToPrettyStrTest(string card, string expected)
     {
+        Card.UseColoredCards = false;
         var cardInt = Card.New(card);
         var actual = Card.IntToPrettyStr(cardInt);
         Assert.AreEqual(expected, actual);
