@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
 
 namespace Deuces;
+
 public class Evaluator
 {
-    private readonly LookupTable _table;
+    private readonly ILookupTable _table;
 
     public Evaluator()
     {
@@ -40,26 +41,7 @@ public class Evaluator
     /// <returns></returns>
     public int GetRankClass(int hr)
     {
-        if (hr is >= 0 and <= LookupTable.MAX_STRAIGHT_FLUSH)
-            return LookupTable.MaxToRankClass(LookupTable.MAX_STRAIGHT_FLUSH);
-        if (hr <= LookupTable.MAX_FOUR_OF_A_KIND)
-            return LookupTable.MaxToRankClass(LookupTable.MAX_FOUR_OF_A_KIND);
-        if (hr <= LookupTable.MAX_FULL_HOUSE)
-            return LookupTable.MaxToRankClass(LookupTable.MAX_FULL_HOUSE);
-        if (hr <= LookupTable.MAX_FLUSH)
-            return LookupTable.MaxToRankClass(LookupTable.MAX_FLUSH);
-        if (hr <= LookupTable.MAX_STRAIGHT)
-            return LookupTable.MaxToRankClass(LookupTable.MAX_STRAIGHT);
-        if (hr <= LookupTable.MAX_THREE_OF_A_KIND)
-            return LookupTable.MaxToRankClass(LookupTable.MAX_THREE_OF_A_KIND);
-        if (hr <= LookupTable.MAX_TWO_PAIR)
-            return LookupTable.MaxToRankClass(LookupTable.MAX_TWO_PAIR);
-        if (hr <= LookupTable.MAX_PAIR)
-            return LookupTable.MaxToRankClass(LookupTable.MAX_PAIR);
-        if (hr <= LookupTable.MAX_HIGH_CARD)
-            return LookupTable.MaxToRankClass(LookupTable.MAX_HIGH_CARD);
-
-        throw new Exception("Invalid hand rank, cannot return rank class");
+        return _table.GetRankClass(hr);
     }
 
     /// <summary>
@@ -69,7 +51,7 @@ public class Evaluator
     /// <returns></returns>
     public string ClassToString(int classInt)
     {
-        return LookupTable.RankClassToString(classInt);
+        return _table.RankClassToString(classInt);
     }
 
     /// <summary>
@@ -79,7 +61,7 @@ public class Evaluator
     /// <returns></returns>
     public double GetFiveCardRankPercentage(int handRank)
     {
-        return handRank / (double)LookupTable.MAX_HIGH_CARD;
+        return handRank / (double)_table.MaxHighCard;
     }
 
     /// <summary>

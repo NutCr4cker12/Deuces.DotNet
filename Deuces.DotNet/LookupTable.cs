@@ -20,7 +20,7 @@ namespace Deuces;
 /// * Royal flush (best hand possible)          =&gt; 1
 /// * 7-5-4-3-2 unsuited (worst hand possible)  =&gt; 7462
 /// </summary>
-internal class LookupTable
+internal class LookupTable : ILookupTable
 {
     internal const int MAX_STRAIGHT_FLUSH = 10;
     internal const int MAX_FOUR_OF_A_KIND = 166;
@@ -32,8 +32,9 @@ internal class LookupTable
     internal const int MAX_PAIR = 6185;
     internal const int MAX_HIGH_CARD = 7462;
 
-    internal readonly IReadOnlyDictionary<int, int> FlushLookup;
-    internal readonly IReadOnlyDictionary<int, int> UnSuitedLookup;
+    public int MaxHighCard => MAX_HIGH_CARD;
+    public IReadOnlyDictionary<int, int> FlushLookup { get; }
+    public IReadOnlyDictionary<int, int> UnSuitedLookup { get; }
     /// <summary>
     /// Calculates lookup tables
     /// </summary>
@@ -48,6 +49,34 @@ internal class LookupTable
         UnSuitedLookup = Multiples(flushesList);
     }
 
+    public int GetRankClass(int hr) => hr switch
+    {
+        >= 0 and <= MAX_STRAIGHT_FLUSH => MaxToRankClass(MAX_STRAIGHT_FLUSH),
+        <= MAX_FOUR_OF_A_KIND => MaxToRankClass(MAX_FOUR_OF_A_KIND),
+        <= MAX_FULL_HOUSE => MaxToRankClass(MAX_FULL_HOUSE),
+        <= MAX_FLUSH => MaxToRankClass(MAX_FLUSH),
+        <= MAX_STRAIGHT => MaxToRankClass(MAX_STRAIGHT),
+        <= MAX_THREE_OF_A_KIND => MaxToRankClass(MAX_THREE_OF_A_KIND),
+        <= MAX_TWO_PAIR => MaxToRankClass(MAX_TWO_PAIR),
+        <= MAX_PAIR => MaxToRankClass(MAX_PAIR),
+        <= MAX_HIGH_CARD => MaxToRankClass(MAX_HIGH_CARD),
+        _ => throw new Exception("Invalid hand rank, cannot return rank class")
+    };
+
+    public string RankClassToString(int rank) => rank switch
+    {
+        1 => "Straight Flush",
+        2 => "Four of a Kind",
+        3 => "Full House",
+        4 => "Flush",
+        5 => "Straight",
+        6 => "Three of a Kind",
+        7 => "Two Pair",
+        8 => "Pair",
+        9 => "High Card",
+        _ => throw new ArgumentOutOfRangeException(nameof(rank), rank, null)
+    };
+
     internal static int MaxToRankClass(int rank) => rank switch
     {
         MAX_STRAIGHT_FLUSH => 1,
@@ -59,20 +88,6 @@ internal class LookupTable
         MAX_TWO_PAIR => 7,
         MAX_PAIR => 8,
         MAX_HIGH_CARD => 9,
-        _ => throw new ArgumentOutOfRangeException(nameof(rank), rank, null)
-    };
-
-    internal static string RankClassToString(int rank) => rank switch
-    {
-        1 => "Straight Flush",
-        2 => "Four of a Kind",
-        3 => "Full House",
-        4 => "Flush",
-        5 => "Straight",
-        6 => "Three of a Kind",
-        7 => "Two Pair",
-        8 => "Pair",
-        9 => "High Card",
         _ => throw new ArgumentOutOfRangeException(nameof(rank), rank, null)
     };
 
