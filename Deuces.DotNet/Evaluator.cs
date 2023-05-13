@@ -8,7 +8,12 @@ public class Evaluator
 
     public Evaluator()
     {
-        _table = new LookupTable();
+        _table = new StdLookupTable();
+    }
+
+    public Evaluator(ILookupTable table)
+    {
+        _table = table;
     }
 
     /// <summary>
@@ -61,7 +66,7 @@ public class Evaluator
     /// <returns></returns>
     public double GetFiveCardRankPercentage(int handRank)
     {
-        return handRank / (double)_table.MaxHighCard;
+        return handRank / (double)_table.MaxValue;
     }
 
     /// <summary>
@@ -97,7 +102,7 @@ public class Evaluator
     /// <returns></returns>
     private int Six(List<int> cards)
     {
-        var minimum = LookupTable.MAX_HIGH_CARD;
+        var minimum = _table.MaxValue;
 
         var temp = cards.ToList();
         for (var _ = 0; _ < 6; _++)
@@ -120,7 +125,7 @@ public class Evaluator
     /// <returns></returns>
     private int Seven(List<int> cards)
     {
-        var minimum = LookupTable.MAX_HIGH_CARD;
+        var minimum = _table.MaxValue;
 
         var temp = cards.ToList();
         for (var i = 0; i < 6; i++)

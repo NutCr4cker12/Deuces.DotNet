@@ -9,6 +9,6 @@ public class LookupPerformance
     [Benchmark]
     public void CreateLookupTable()
     {
-        var table = new LookupTable();
+        var table = new StdLookupTable();
     }
 }

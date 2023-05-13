@@ -20,7 +20,7 @@ namespace Deuces;
 /// * Royal flush (best hand possible)          =&gt; 1
 /// * 7-5-4-3-2 unsuited (worst hand possible)  =&gt; 7462
 /// </summary>
-internal class LookupTable : ILookupTable
+internal class StdLookupTable : ILookupTable
 {
     internal const int MAX_STRAIGHT_FLUSH = 10;
     internal const int MAX_FOUR_OF_A_KIND = 166;
@@ -32,13 +32,13 @@ internal class LookupTable : ILookupTable
     internal const int MAX_PAIR = 6185;
     internal const int MAX_HIGH_CARD = 7462;
 
-    public int MaxHighCard => MAX_HIGH_CARD;
+    public int MaxValue => MAX_HIGH_CARD;
     public IReadOnlyDictionary<int, int> FlushLookup { get; }
     public IReadOnlyDictionary<int, int> UnSuitedLookup { get; }
     /// <summary>
     /// Calculates lookup tables
     /// </summary>
-    public LookupTable()
+    public StdLookupTable()
     {
         var flushesList = GetFlushesList();
         FlushLookup = Flushes(flushesList);
