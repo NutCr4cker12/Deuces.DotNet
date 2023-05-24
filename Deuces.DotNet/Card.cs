@@ -19,7 +19,7 @@ public static class Card
     //     4) b = bit turned on depending on rank of card
     //     5) x = unused
     // This representation will allow us to do very important things like:
-    // - Make a unique prime prodcut for each hand
+    // - Make a unique prime product for each hand
     // - Detect flushes
     // - Detect straights
     // and is also quite performant.

@@ -4,14 +4,22 @@ namespace Deuces;
 
 public class Evaluator
 {
-    private readonly ILookupTable _table;
+    protected readonly ILookupTable _table;
 
-    public Evaluator()
+    // Static instances of possible Evaluators
+    private static Evaluator? _instance;
+    private static Evaluator? _canadianStudInstance;
+
+    // ShortHands to access same instance from everywhere
+    public static Evaluator Instance => _instance ??= new();
+    public static Evaluator CanadianStud => _canadianStudInstance ??= new Evaluator(new CanadianStudLookupTable());
+
+
+    public Evaluator() : this(new StdLookupTable())
     {
-        _table = new StdLookupTable();
     }
 
-    public Evaluator(ILookupTable table)
+    protected Evaluator(ILookupTable table)
     {
         _table = table;
     }
@@ -77,7 +85,7 @@ public class Evaluator
     /// </summary>
     /// <param name="cards"></param>
     /// <returns></returns>
-    private int Five(List<int> cards)
+    protected virtual int Five(List<int> cards)
     {
         int prime;
         // if flush

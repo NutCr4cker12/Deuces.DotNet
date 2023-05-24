@@ -1,6 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 
 namespace Deuces;
+
+internal abstract class LookupTableBase
+{
+    public abstract int MaxValue { get; }
+}
+
 /// <summary>
 /// Number of Distinct Hand Values:
 /// Straight Flush   10 
@@ -20,23 +26,47 @@ namespace Deuces;
 /// * Royal flush (best hand possible)          =&gt; 1
 /// * 7-5-4-3-2 unsuited (worst hand possible)  =&gt; 7462
 /// </summary>
-internal class StdLookupTable : ILookupTable
+internal class StdLookupTable : LookupTableBase, ILookupTable
 {
-    internal const int MAX_STRAIGHT_FLUSH = 10;
-    internal const int MAX_FOUR_OF_A_KIND = 166;
-    internal const int MAX_FULL_HOUSE = 322;
-    internal const int MAX_FLUSH = 1599;
-    internal const int MAX_STRAIGHT = 1609;
-    internal const int MAX_THREE_OF_A_KIND = 2467;
-    internal const int MAX_TWO_PAIR = 3325;
-    internal const int MAX_PAIR = 6185;
-    internal const int MAX_HIGH_CARD = 7462;
+    protected static readonly int MAX_STRAIGHT_FLUSH = 10;
+    protected static readonly int MAX_FOUR_OF_A_KIND = 166; // 156
+    protected static readonly int MAX_FULL_HOUSE = 322; // 156
+    protected static readonly int MAX_FLUSH = 1599;
+    protected static readonly int MAX_STRAIGHT = 1609; // 10
+    protected static readonly int MAX_THREE_OF_A_KIND = 2467; // 858
+    protected static readonly int MAX_TWO_PAIR = 3325; // 858
+    protected static readonly int MAX_PAIR = 6185; // 2860
+    protected static readonly int MAX_HIGH_CARD = 7462; // 1277
 
-    public int MaxValue => MAX_HIGH_CARD;
-    public IReadOnlyDictionary<int, int> FlushLookup { get; }
+    public override int MaxValue { get; } = MAX_HIGH_CARD;
+    public IReadOnlyDictionary<int, int> FlushLookup { get; init; }
     public IReadOnlyDictionary<int, int> UnSuitedLookup { get; }
+    protected readonly int[] _backWardRanks = { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
+    private readonly int[] _straightFlushes =
+    {
+        7936, // int('0b1111100000000', 2), # royal flush
+        3968, // int('0b111110000000', 2),
+        1984, // int('0b11111000000', 2),
+        992, // int('0b1111100000', 2),
+        496, // int('0b111110000', 2),
+        248, // int('0b11111000', 2),
+        124, // int('0b1111100', 2),
+        62, // int('0b111110', 2),
+        31, // int('0b11111', 2),
+        4111, //nt('0b1000000001111', 2) # 5 high
+    };
+
     /// <summary>
-    /// Calculates lookup tables
+    /// Create a standard lookup table for the most common poker hands:
+    /// 1) Straight flush
+    /// 2) Four of a kind
+    /// 3) Full House
+    /// 4) Flush
+    /// 5) Straight
+    /// 6) Three of a kind
+    /// 7) Two pairs
+    /// 8) Pair
+    /// 9) High card
     /// </summary>
     public StdLookupTable()
     {
@@ -46,24 +76,26 @@ internal class StdLookupTable : ILookupTable
         // we can reuse these bit sequences for straights
         // and high cards since they are inherently related
         // and differ only by context 
-        UnSuitedLookup = Multiples(flushesList);
+        var lookUp = new Dictionary<int, int>(4898);
+        UnSuitedLookup = Multiples(lookUp, flushesList);
     }
 
-    public int GetRankClass(int hr) => hr switch
+    public virtual int GetRankClass(int hr)
     {
-        >= 0 and <= MAX_STRAIGHT_FLUSH => MaxToRankClass(MAX_STRAIGHT_FLUSH),
-        <= MAX_FOUR_OF_A_KIND => MaxToRankClass(MAX_FOUR_OF_A_KIND),
-        <= MAX_FULL_HOUSE => MaxToRankClass(MAX_FULL_HOUSE),
-        <= MAX_FLUSH => MaxToRankClass(MAX_FLUSH),
-        <= MAX_STRAIGHT => MaxToRankClass(MAX_STRAIGHT),
-        <= MAX_THREE_OF_A_KIND => MaxToRankClass(MAX_THREE_OF_A_KIND),
-        <= MAX_TWO_PAIR => MaxToRankClass(MAX_TWO_PAIR),
-        <= MAX_PAIR => MaxToRankClass(MAX_PAIR),
-        <= MAX_HIGH_CARD => MaxToRankClass(MAX_HIGH_CARD),
-        _ => throw new Exception("Invalid hand rank, cannot return rank class")
-    };
+        if (hr < 0) throw new Exception("Invalid hand rank. Rank must be at least 0.");
+        if (hr <= MAX_STRAIGHT_FLUSH) return 1;
+        if (hr <= MAX_FOUR_OF_A_KIND) return 2;
+        if (hr <= MAX_FULL_HOUSE) return 3;
+        if (hr <= MAX_FLUSH) return 4;
+        if (hr <= MAX_STRAIGHT) return 5;
+        if (hr <= MAX_THREE_OF_A_KIND) return 6;
+        if (hr <= MAX_TWO_PAIR) return 7;
+        if (hr <= MAX_PAIR) return 8;
+        if (hr <= MAX_HIGH_CARD) return 9;
+        throw new Exception("Invalid hand rank, cannot return rank class");
+    }
 
-    public string RankClassToString(int rank) => rank switch
+    public virtual string RankClassToString(int rank) => rank switch
     {
         1 => "Straight Flush",
         2 => "Four of a Kind",
@@ -77,33 +109,196 @@ internal class StdLookupTable : ILookupTable
         _ => throw new ArgumentOutOfRangeException(nameof(rank), rank, null)
     };
 
-    internal static int MaxToRankClass(int rank) => rank switch
+    /// <summary>
+    /// Populates the lookUp table with Four of a kind, Full house, Straights, Three of a kind, Two pairs, Pairs and High cards
+    /// </summary>
+    /// <param name="lookUp"></param>
+    /// <param name="flushes"></param>
+    /// <returns></returns>
+    protected virtual IReadOnlyDictionary<int, int> Multiples(IDictionary<int, int> lookUp, IReadOnlyList<int> flushes)
     {
-        MAX_STRAIGHT_FLUSH => 1,
-        MAX_FOUR_OF_A_KIND => 2,
-        MAX_FULL_HOUSE => 3,
-        MAX_FLUSH => 4,
-        MAX_STRAIGHT => 5,
-        MAX_THREE_OF_A_KIND => 6,
-        MAX_TWO_PAIR => 7,
-        MAX_PAIR => 8,
-        MAX_HIGH_CARD => 9,
-        _ => throw new ArgumentOutOfRangeException(nameof(rank), rank, null)
-    };
+        // 1) Four of a Kind
+        PopulateFourOfAKindLUT(lookUp, MAX_STRAIGHT_FLUSH + 1);
 
-    private readonly int[] _straightFlushes = new int[]
+        // 2) Full House
+        PopulateFullHouseLUT(lookUp, MAX_FOUR_OF_A_KIND + 1);
+
+        // ...Flushes are in separate lookUp table
+
+        // 3) Straights
+        PopulateStraightsLUT(lookUp, MAX_FLUSH + 1);
+
+        // 4) Three of a Kind
+        PopulateThreeOfAKindLUT(lookUp, MAX_STRAIGHT + 1);
+
+        // 5) Two Pair
+        PopulateTwoPairsLUT(lookUp, MAX_THREE_OF_A_KIND + 1);
+
+        // 6) Pair
+        PopulatePairLUT(lookUp, MAX_TWO_PAIR + 1);
+
+        // 7) High Cards
+        PopulateHighCardLUT(lookUp, flushes, MAX_PAIR + 1);
+
+        return new ReadOnlyDictionary<int, int>(lookUp); // TODO Does this have an overhead ??
+    }
+
+    /// <summary>
+    /// Populates the lookUp table with Four a kind hands
+    /// </summary>
+    /// <param name="lookUp"></param>
+    /// <param name="rank"></param>
+    protected void PopulateFourOfAKindLUT(IDictionary<int, int> lookUp, int rank)
     {
-        7936, // int('0b1111100000000', 2), # royal flush
-        3968, // int('0b111110000000', 2),
-        1984, // int('0b11111000000', 2),
-        992, // int('0b1111100000', 2),
-        496, // int('0b111110000', 2),
-        248, // int('0b11111000', 2),
-        124, // int('0b1111100', 2),
-        62, // int('0b111110', 2),
-        31, // int('0b11111', 2),
-        4111, //nt('0b1000000001111', 2) # 5 high
-    };
+        // for each choice of a set of four rank
+        foreach (var i in _backWardRanks)
+        {
+            // and for each possible kicker rank
+            foreach (var kicker in _backWardRanks)
+            {
+                if (kicker == i) continue;
+
+                var product = (int)Math.Pow(Card.PRIMES[i], 4) * Card.PRIMES[kicker];
+                lookUp.Add(product, rank++);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Populates the lookUp table with Full house hands
+    /// </summary>
+    /// <param name="lookUp"></param>
+    /// <param name="rank"></param>
+    protected void PopulateFullHouseLUT(IDictionary<int, int> lookUp, int rank)
+    {
+        // for each three of a kind
+        foreach (var i in _backWardRanks)
+        {
+            // and for each choice of pair rank
+            foreach (var pr in _backWardRanks)
+            {
+                if (pr == i) continue;
+
+                var product = (int)(Math.Pow(Card.PRIMES[i], 3) * Math.Pow(Card.PRIMES[pr], 2));
+                lookUp.Add(product, rank++);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Populates the lookUp table with Straight hands
+    /// </summary>
+    /// <param name="lookUp"></param>
+    /// <param name="rank"></param>
+    protected void PopulateStraightsLUT(IDictionary<int, int> lookUp, int rank)
+    {
+        // "Straights"
+        foreach (var sf in _straightFlushes)
+        {
+            var primeProduct = Card.PrimeProductFromRankBits(sf);
+            lookUp.Add(primeProduct, rank++);
+        }
+    }
+
+    /// <summary>
+    /// Populates the lookUp table with Three of a kind hands
+    /// </summary>
+    /// <param name="lookUp"></param>
+    /// <param name="rank"></param>
+    protected void PopulateThreeOfAKindLUT(IDictionary<int, int> lookUp, int rank)
+    {
+        // pick three of one rank
+        foreach (var r in _backWardRanks)
+        {
+            // Generate Combinations
+            for (var comb1 = 0; comb1 < _backWardRanks.Length - 1; comb1++)
+            {
+                var c1 = _backWardRanks[comb1];
+                if (c1 == r) continue;
+
+                for (var comb2 = comb1 + 1; comb2 < _backWardRanks.Length; comb2++)
+                {
+                    var c2 = _backWardRanks[comb2];
+                    if (c2 == r) continue;
+
+                    var product = (int)Math.Pow(Card.PRIMES[r], 3) * Card.PRIMES[c1] * Card.PRIMES[c2];
+                    lookUp.Add(product, rank++);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Populates the lookUp table with Two pair hands
+    /// </summary>
+    /// <param name="lookUp"></param>
+    /// <param name="rank"></param>
+    protected void PopulateTwoPairsLUT(IDictionary<int, int> lookUp, int rank)
+    {
+        // Generate Combinations
+        for (var comb1 = 0; comb1 < _backWardRanks.Length - 1; comb1++)
+        {
+            for (var comb2 = comb1 + 1; comb2 < _backWardRanks.Length; comb2++)
+            {
+                var pair1 = _backWardRanks[comb1];
+                var pair2 = _backWardRanks[comb2];
+
+                foreach (var kicker in _backWardRanks)
+                {
+                    if (kicker == pair1 || kicker == pair2) continue;
+
+                    var product = (int)(Math.Pow(Card.PRIMES[pair1], 2) * Math.Pow(Card.PRIMES[pair2], 2)) * Card.PRIMES[kicker];
+                    lookUp.Add(product, rank++);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Populates the lookUp table with Pair hands
+    /// </summary>
+    /// <param name="lookUp"></param>
+    /// <param name="rank"></param>
+    protected virtual void PopulatePairLUT(IDictionary<int, int> lookUp, int rank)
+    {
+        // choose a pair
+        foreach (var pairRank in _backWardRanks)
+        {
+            for (var comb1 = 0; comb1 < _backWardRanks.Length - 2; comb1++)
+            {
+                var k1 = _backWardRanks[comb1];
+                if (k1 == pairRank) continue;
+                for (var comb2 = comb1 + 1; comb2 < _backWardRanks.Length - 1; comb2++)
+                {
+                    var k2 = _backWardRanks[comb2];
+                    if (k2 == pairRank) continue;
+                    for (var comb3 = comb2 + 1; comb3 < _backWardRanks.Length; comb3++)
+                    {
+                        var k3 = _backWardRanks[comb3];
+                        if (k3 == pairRank) continue;
+
+                        var product = (int)Math.Pow(Card.PRIMES[pairRank], 2) * Card.PRIMES[k1] * Card.PRIMES[k2] * Card.PRIMES[k3];
+                        lookUp.Add(product, rank++);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Populates the lookUp table with High card hands
+    /// </summary>
+    /// <param name="lookUp"></param>
+    /// <param name="highCards"></param>
+    /// <param name="rank"></param>
+    protected virtual void PopulateHighCardLUT(IDictionary<int, int> lookUp, IReadOnlyList<int> highCards, int rank)
+    {
+        foreach (var h in highCards)
+        {
+            var primeProduct = Card.PrimeProductFromRankBits(h);
+            lookUp.Add(primeProduct, rank++);
+        }
+    }
 
     /// <summary>
     /// Straight flushes and flushes. 
@@ -123,7 +318,8 @@ internal class StdLookupTable : ILookupTable
         foreach (var sf in _straightFlushes)
         {
             var primeProduct = Card.PrimeProductFromRankBits(sf);
-            flushes[primeProduct] = rank++;
+            flushes.Add(primeProduct, rank++);
+            //flushes[primeProduct] = rank++;
         }
 
         // we start the counting for flushes on max full house, which
@@ -132,157 +328,11 @@ internal class StdLookupTable : ILookupTable
         foreach (var f in flushesArr)
         {
             var primeProduct = Card.PrimeProductFromRankBits(f);
-            flushes[primeProduct] = rank++;
+            flushes.Add(primeProduct, rank++);
+            //flushes[primeProduct] = rank++;
         }
 
         return new ReadOnlyDictionary<int, int>(flushes); // TODO Does this have an overhead ??
-    }
-
-    /// <summary>
-    /// Pair, Two Pair, Three of a Kind, Full House, and 4 of a Kind.
-    /// </summary>
-    /// <param name="readOnlyList"></param>
-    /// <returns></returns>
-    private IReadOnlyDictionary<int, int> Multiples(IReadOnlyList<int> readOnlyList)
-    {
-        var lookUp = StraightAndHighCards(readOnlyList);
-
-        var backwards_ranks = new[] { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 };
-
-        // 1) Four of a Kind
-        var rank = MAX_STRAIGHT_FLUSH + 1;
-
-        // for each choice of a set of four rank
-        foreach (var i in backwards_ranks)
-        {
-            // and for each possible kicker rank
-            foreach (var kicker in backwards_ranks)
-            {
-                if (kicker == i) continue;
-
-                var product = (int)Math.Pow(Card.PRIMES[i], 4) * Card.PRIMES[kicker];
-                lookUp[product] = rank++;
-            }
-        }
-
-
-        // 2) Full House
-        rank = MAX_FOUR_OF_A_KIND + 1;
-
-        // for each three of a kind
-        foreach (var i in backwards_ranks)
-        {
-            // and for each choice of pair rank
-            foreach (var pr in backwards_ranks)
-            {
-                if (pr == i) continue;
-
-                var product = (int)(Math.Pow(Card.PRIMES[i], 3) * Math.Pow(Card.PRIMES[pr], 2));
-                lookUp[product] = rank++;
-            }
-        }
-
-
-        // 3) Three of a Kind
-        rank = MAX_STRAIGHT + 1;
-
-        // pick three of one rank
-        foreach (var r in backwards_ranks)
-        {
-            // Generate Combinations
-            for (var comb1 = 0; comb1 < backwards_ranks.Length - 1; comb1++)
-            {
-                var c1 = backwards_ranks[comb1];
-                if (c1 == r) continue;
-
-                for (var comb2 = comb1 + 1; comb2 < backwards_ranks.Length; comb2++)
-                {
-                    var c2 = backwards_ranks[comb2];
-                    if (c2 == r) continue;
-
-                    var product = (int)Math.Pow(Card.PRIMES[r], 3) * Card.PRIMES[c1] * Card.PRIMES[c2];
-                    lookUp[product] = rank++;
-                }
-            }
-        }
-
-        // 4) Two Pair
-        rank = MAX_THREE_OF_A_KIND + 1;
-
-        // Generate Combinations
-        for (var comb1 = 0; comb1 < backwards_ranks.Length - 1; comb1++)
-        {
-            for (var comb2 = comb1 + 1; comb2 < backwards_ranks.Length; comb2++)
-            {
-                var pair1 = backwards_ranks[comb1];
-                var pair2 = backwards_ranks[comb2];
-
-                foreach (var kicker in backwards_ranks)
-                {
-                    if (kicker == pair1 || kicker == pair2) continue;
-
-                    var product = (int)(Math.Pow(Card.PRIMES[pair1], 2) * Math.Pow(Card.PRIMES[pair2], 2)) * Card.PRIMES[kicker];
-                    lookUp[product] = rank++;
-                }
-            }
-        }
-
-        // 5) Pair
-        rank = MAX_TWO_PAIR + 1;
-
-        // choose a pair
-        foreach (var pairrank in backwards_ranks)
-        {
-            for (var comb1 = 0; comb1 < backwards_ranks.Length - 2; comb1++)
-            {
-                var k1 = backwards_ranks[comb1];
-                if (k1 == pairrank) continue;
-                for (var comb2 = comb1 + 1; comb2 < backwards_ranks.Length - 1; comb2++)
-                {
-                    var k2 = backwards_ranks[comb2];
-                    if (k2 == pairrank) continue;
-                    for (var comb3 = comb2 + 1; comb3 < backwards_ranks.Length; comb3++)
-                    {
-                        var k3 = backwards_ranks[comb3];
-                        if (k3 == pairrank) continue;
-
-                        var product = (int)Math.Pow(Card.PRIMES[pairrank], 2) * Card.PRIMES[k1] * Card.PRIMES[k2] * Card.PRIMES[k3];
-                        lookUp[product] = rank++;
-                    }
-                }
-            }
-        }
-
-        return new ReadOnlyDictionary<int, int>(lookUp); // TODO Does this have an overhead ??
-    }
-
-    /// <summary>
-    /// Unique five card sets. Straights and highcards. 
-    /// Reuses bit sequences from flush calculations.
-    /// </summary>
-    /// <param name="straightFlushes"></param>
-    /// <param name="highCards"></param>
-    /// <returns></returns>
-    private Dictionary<int, int> StraightAndHighCards(IReadOnlyList<int> highCards)
-    {
-        var res = new Dictionary<int, int>(4898);
-        var rank = MAX_FLUSH + 1;
-
-        // "Straights"
-        foreach (var sf in _straightFlushes)
-        {
-            var primeProduct = Card.PrimeProductFromRankBits(sf);
-            res[primeProduct] = rank++;
-        }
-
-        rank = MAX_PAIR + 1;
-        foreach (var h in highCards)
-        {
-            var primeProduct = Card.PrimeProductFromRankBits(h);
-            res[primeProduct] = rank++;
-        }
-
-        return res;
     }
 
     private IReadOnlyList<int> GetFlushesList()

@@ -2,10 +2,10 @@
 
 namespace Tests;
 
-[TestClass()]
-public class EvaluatorTests
+[TestClass]
+public class CanadianStudEvaluatorTests
 {
-    private Evaluator? _evaluator;
+    private CanadianStudEvaluator? _evaluator;
 
     private int[] StringToCards(string cards)
     {
@@ -18,7 +18,7 @@ public class EvaluatorTests
     [TestInitialize]
     public void Setup()
     {
-        _evaluator = new();
+        _evaluator = new CanadianStudEvaluator();
     }
 
     [DataTestMethod]
@@ -32,7 +32,11 @@ public class EvaluatorTests
     [DataRow("TsTh5s", "AdTc", "KdTc")] // Trips comparison
     [DataRow("AsTh2d", "2s2h", "AdTs")] // Trips vs Two pair
     [DataRow("AsTh5s", "AdTs", "Ah5d")] // Two pair comparison
-    [DataRow("As3s2d", "3d2s", "AdKd")] // Two pair vs Pair
+    [DataRow("AsTh5s", "AdTs", "KsQs")] // Two pair vs Four flush
+    [DataRow("AsTh5s", "KsQs", "JsTs")] // Four flush comparison
+    [DataRow("AsJh5s", "3s2s", "KcQc")] // Four flush vs Four straight
+    [DataRow("Ts9h8c", "Jd2c", "As7d")] // Four straight comparison
+    [DataRow("Ts9h8c", "7d2c", "AsAd")] // Four straight vs Pair
     [DataRow("As3s2d", "Kd3d", "Kh2s")] // Pair comparison
     [DataRow("As3s2d", "Kh2s", "KdQs")] // Pair vs High Card
     [DataRow("As3s2d", "KdQs", "KhJs")] // High Card comparison
@@ -45,23 +49,6 @@ public class EvaluatorTests
         var cards1Res = _evaluator!.Evaluate(card1Ints, boardInts);
         var cards2Res = _evaluator!.Evaluate(card2Ints, boardInts);
         Assert.IsTrue(cards1Res < cards2Res);
-    }
-
-    [TestMethod]
-    [DataRow("5s4s2s", "AsKs", "5h4h2h", "AhKh")] // Spade vs Hearts
-    [DataRow("5h4h2h", "AhKh", "5d4d2d", "AdKd")] // Hearts vs Diamonds
-    [DataRow("5d4d2d", "AdKd", "5c4c2c", "AcKc")] // Diamonds vs Clubs
-    public void EvaluateFlushSuiteTest(string board1, string cards1, string board2, string cards2)
-    {
-        var boardInts = StringToCards(board1);
-        var card1Ints = StringToCards(cards1);
-
-        var board2Ints = StringToCards(board1);
-        var cards2Ints = StringToCards(cards2);
-
-        var res1 = _evaluator!.Evaluate(card1Ints, boardInts);
-        var res2 = _evaluator!.Evaluate(cards2Ints, board2Ints);
-        Assert.IsTrue(res1 < res2);
     }
 
     [DataTestMethod]
@@ -130,6 +117,9 @@ public class EvaluatorTests
     [DataRow("QhJdTh", "AcKc", "AsKs")] // Straight
     [DataRow("TsTh5s3s", "AdTc", "AcTd")] // Trips
     [DataRow("AsTh5s3s", "AdTs", "AhTc")] // Two pair
+    [DataRow("AsKsQsTs2c", "Ac9c", "5c4c")] // Four Flush
+    [DataRow("KsQsJhTs2c", "5d5c", "8d8c")] // Four Straight
+    [DataRow("AsTh5s3s", "AdTs", "AhTc")] // Two pair
     [DataRow("AsTh5s3s2d", "Kd3d", "Kh3c")] // Pair
     [DataRow("AsTh5s3s2d", "KdQs", "KhQd")] // High Card
     public void ShouldBeEqual(string board, string cards1, string cards2)
@@ -151,8 +141,10 @@ public class EvaluatorTests
     [DataRow("QhJdTh", "AcKc", 5)] // Straight
     [DataRow("TsTh5s3s", "AdTc", 6)] // Trips
     [DataRow("AsTh5s3s", "AdTs", 7)] // Two pair
-    [DataRow("AsTh5s3s2d", "Kd3d", 8)] // Pair
-    [DataRow("AsTh5s3s2d", "KdQs", 9)] // High Card
+    [DataRow("AsJh5s", "3s2s", 8)] // Four flush vs Four straight
+    [DataRow("Ts9h8c", "Jd2c", 9)] // Four straight comparison
+    [DataRow("AsTh5s3s2d", "Kd3d", 10)] // Pair
+    [DataRow("AsTh5s3s2d", "KdQd", 11)] // High Card
     public void GetRankClassTest(string board, string cards, int expectedRankClass)
     {
         var boardInts = StringToCards(board);
