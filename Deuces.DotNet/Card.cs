@@ -172,7 +172,7 @@ public static class Card
     /// </summary>
     /// <param name="cards"></param>
     /// <returns></returns>
-    internal static int PrimeProductFromHand(List<int> cardInts)
+    internal static int PrimeProductFromHand(ReadOnlySpan<int> cardInts)
     {
         var product = 1;
         foreach (var c in cardInts)

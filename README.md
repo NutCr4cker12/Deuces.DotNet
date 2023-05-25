@@ -99,14 +99,14 @@ Job=MediumRun  Toolchain=InProcessNoEmitToolchain  IterationCount=15
 LaunchCount=2  WarmupCount=10  
 
 ```
-|                Method |        Mean |    Error |    StdDev |
-|---------------------- |------------:|---------:|----------:|
-|     EvaluateFiveFlush |    65.66 ns | 0.822 ns |  1.230 ns |
-|  EvaluateFiveNonFlush |    53.63 ns | 0.841 ns |  1.206 ns |
-|      EvaluateSixFlush |   265.68 ns | 3.530 ns |  4.832 ns |
-|   EvaluateSixNonFlush |   262.61 ns | 5.639 ns |  8.441 ns |
-|    EvaluateSevenFlush | 1,106.48 ns | 9.437 ns | 14.125 ns |
-| EvaluateSevenNonFlush | 1,077.44 ns | 7.904 ns | 11.080 ns |  
+|                Method |      Mean |    Error |   StdDev |
+|---------------------- |----------:|---------:|---------:|
+|     EvaluateFiveFlush |  28.14 ns | 0.196 ns | 0.288 ns |
+|  EvaluateFiveNonFlush |  15.13 ns | 0.099 ns | 0.136 ns |
+|      EvaluateSixFlush | 122.20 ns | 0.563 ns | 0.842 ns |
+|   EvaluateSixNonFlush | 108.66 ns | 0.576 ns | 0.862 ns |
+|    EvaluateSevenFlush | 924.67 ns | 1.362 ns | 1.909 ns |
+| EvaluateSevenNonFlush | 873.11 ns | 3.955 ns | 5.798 ns |
 
 \
 To compare against [python implementation](https://github.com/ihendley/treys), here's the performance with Deuces:  
@@ -118,11 +118,11 @@ As a conclusion:
 |                Method |        Avg  |    Evaluations per second |
 |---------------------- |------------:|--------------------------:|
 | Deuces 5              |    1 000 ns |                   909 137 |
-| Deuces.DotNet 5       |       60 ns |                16 765 864 |
+| Deuces.DotNet 5       |       22 ns |                46 221 400 |
 | Deuces 6              |    5 000 ns |                   185 185 |
-| Deuces.DotNet 6       |      264 ns |                 3 785 799 |
+| Deuces.DotNet 6       |      115 ns |                 8 663 259 |
 | Deuces 7              |   18 000 ns |                    56 179 |
-| Deuces.DotNet 7       |    1 077 ns |                   915 784 |
+| Deuces.DotNet 7       |      899 ns |                 1 112 483 |
 
 Creating a LookUp table taks about 0.0002883 Seconds
 

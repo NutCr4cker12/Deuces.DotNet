@@ -23,11 +23,12 @@ public class Evaluator
     {
         Debug.Assert(cards.Length == 2);
         var cardsCount = cards.Length + board.Length;
+
         return cardsCount switch
         {
-            5 => Five(new List<int> { cards[0], cards[1], board[0], board[1], board[2] }),
-            6 => Six(new List<int> { cards[0], cards[1], board[0], board[1], board[2], board[3] }),
-            7 => Seven(new List<int> { cards[0], cards[1], board[0], board[1], board[2], board[3], board[4] }),
+            5 => Five(stackalloc int[] { cards[0], cards[1], board[0], board[1], board[2] }),
+            6 => Six(stackalloc int[] { cards[0], cards[1], board[0], board[1], board[2], board[3] }),
+            7 => Seven(stackalloc int[] { cards[0], cards[1], board[0], board[1], board[2], board[3], board[4] }),
             _ => throw new ArgumentOutOfRangeException(nameof(cardsCount), cardsCount, null)
         };
     }
@@ -37,6 +38,7 @@ public class Evaluator
     /// returned from evaluate. 
     /// </summary>
     /// <param name="handRank"></param>
+    /// <param name="hr"></param>
     /// <returns></returns>
     public int GetRankClass(int hr)
     {
@@ -90,7 +92,7 @@ public class Evaluator
     /// </summary>
     /// <param name="cards"></param>
     /// <returns></returns>
-    private int Five(List<int> cards)
+    private int Five(ReadOnlySpan<int> cards)
     {
         int prime;
         // if flush
@@ -113,17 +115,28 @@ public class Evaluator
     /// </summary>
     /// <param name="cards"></param>
     /// <returns></returns>
-    private int Six(List<int> cards)
+    private int Six(ReadOnlySpan<int> cards)
     {
         var minimum = LookupTable.MAX_HIGH_CARD;
 
-        var temp = cards.ToList();
-        for (var _ = 0; _ < 6; _++)
+        Span<int> temp = stackalloc int[5];
+        for (var i = 0; i < 6; i++)
         {
-            var item = temp[0];
-            temp.RemoveAt(0);
+            // From 0 to i
+            if (i != 0)
+            {
+                var first = cards[..i];
+                first.CopyTo(temp[..i]);
+            }
+
+            // From i + 1 to end
+            if (i != 5)
+            {
+                var last = cards[(i + 1)..];
+                last.CopyTo(temp[i..]);
+            }
+
             minimum = Math.Min(minimum, Five(temp));
-            temp.Add(item);
         }
 
         return minimum;
@@ -136,23 +149,28 @@ public class Evaluator
     /// </summary>
     /// <param name="cards"></param>
     /// <returns></returns>
-    private int Seven(List<int> cards)
+    private int Seven(ReadOnlySpan<int> cards)
     {
         var minimum = LookupTable.MAX_HIGH_CARD;
 
-        var temp = cards.ToList();
-        for (var i = 0; i < 6; i++)
+        Span<int> temp = stackalloc int[6];
+        for (var i = 0; i < 7; i++)
         {
-            var item1 = temp[i];
-            temp.RemoveAt(i);
-            for (var j = i + 1; j < 7; j++)
+            // From 0 to i
+            if (i != 0)
             {
-                var item2 = temp[j - 1];
-                temp.RemoveAt(j - 1);
-                minimum = Math.Min(minimum, Five(temp));
-                temp.Insert(j - 1, item2);
+                var first = cards[..i];
+                first.CopyTo(temp[..i]);
             }
-            temp.Insert(i, item1);
+
+            // From i + 1 to end
+            if (i != 5)
+            {
+                var last = cards[(i + 1)..];
+                last.CopyTo(temp[i..]);
+            }
+
+            minimum = Math.Min(minimum, Six(temp));
         }
 
         return minimum;
